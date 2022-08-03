@@ -1,0 +1,999 @@
+<!doctypehtml>
+<html lang=en-us>
+
+<head>
+	<meta charset=utf-8>
+	<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+	<title>Emscripten-Generated Code</title>
+	<style>
+	.emscripten {
+		padding-right: 0;
+		margin-left: auto;
+		margin-right: auto;
+		display: block
+	}
+	
+	textarea.emscripten {
+		font-family: monospace;
+		width: 80%
+	}
+	
+	div.emscripten {
+		text-align: center
+	}
+	
+	div.emscripten_border {
+		border: 1px solid #000
+	}
+	
+	canvas.emscripten {
+		border: 0 none;
+		background-color: #000
+	}
+	
+	.spinner {
+		height: 50px;
+		width: 50px;
+		margin: 0 auto;
+		-webkit-animation: rotation .8s linear infinite;
+		-moz-animation: rotation .8s linear infinite;
+		-o-animation: rotation .8s linear infinite;
+		animation: rotation .8s linear infinite;
+		border-left: 10px solid #0096f0;
+		border-right: 10px solid #0096f0;
+		border-bottom: 10px solid #0096f0;
+		border-top: 10px solid #6400c8;
+		border-radius: 100%;
+		background-color: #c864fa
+	}
+	
+	@-webkit-keyframes rotation {
+		from {
+			-webkit-transform: rotate(0)
+		}
+		to {
+			-webkit-transform: rotate(360deg)
+		}
+	}
+	
+	@-moz-keyframes rotation {
+		from {
+			-moz-transform: rotate(0)
+		}
+		to {
+			-moz-transform: rotate(360deg)
+		}
+	}
+	
+	@-o-keyframes rotation {
+		from {
+			-o-transform: rotate(0)
+		}
+		to {
+			-o-transform: rotate(360deg)
+		}
+	}
+	
+	@keyframes rotation {
+		from {
+			transform: rotate(0)
+		}
+		to {
+			transform: rotate(360deg)
+		}
+	}
+	</style>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+	<figure id=spinner style=overflow:visible>
+		<div class=spinner></div>
+		<center style=margin-top:.5em><strong>emscripten</strong></center>
+	</figure>
+	<div class=emscripten id=status>Downloading...</div>
+	<div class=emscripten>
+		<progress hidden id=progress max=100 value=0></progress>
+	</div>
+  <p id="warning" style="display: none; text-align: center">WARNING: The round has ended, and the results are final! Please return to the main menu before the track changes in 20 seconds.<br>When the track changes, please load the new track from the Track menu! Results from a prior track will not be counted when the track changes!</p>
+  <div class="frameParent">
+    <div id="timer"></div>
+  </div>
+  <div id="parent">
+	  <div class=emscripten_border>
+		  <canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas>
+      <div class="frameParent">
+        <div id="leaderboard" width="300px" height="150px"></div>
+        <div id="chatview" width="300px" height="150px"></div>
+      </div>
+	  </div>
+  </div>
+	<hr>
+  <div style="text-align: center">
+      Username: <input type="text" id="usernameinput"></input><br>
+      Server: <input type="text" id="serverinput"></input><br>
+      <button id="connectbutton">Connect</button>
+    </div>
+	<div class=emscripten>
+		<input type=checkbox id=resize>Resize canvas
+		<input type=checkbox id=pointerLock checked>Lock/hide mouse pointer
+	</div>
+	<script>
+	var statusElement = document.getElementById("status"),
+		progressElement = document.getElementById("progress"),
+		spinnerElement = document.getElementById("spinner"),
+		Module = {
+			preRun: [],
+			postRun: [],
+			print: function() {
+				var e = document.getElementById("output");
+				return e && (e.value = ""),
+					function(t) {
+						arguments.length > 1 && (t = Array.prototype.slice.call(arguments).join(" ")), console.log(t), e && (e.value += t + "\n", e.scrollTop = e.scrollHeight)
+					}
+			}(),
+			printErr: function(e) {
+				arguments.length > 1 && (e = Array.prototype.slice.call(arguments).join(" ")), console.error(e)
+			},
+			canvas: function() {
+				var e = document.getElementById("canvas");
+				return e.addEventListener("webglcontextlost", (function(e) {
+					alert("WebGL context lost. You will need to reload the page."), e.preventDefault()
+				}), !1), e
+			}(),
+			setStatus: function(e) {
+				if(Module.setStatus.last || (Module.setStatus.last = {
+						time: Date.now(),
+						text: ""
+					}), e !== Module.setStatus.last.text) {
+					var t = e.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/),
+						n = Date.now();
+					t && n - Module.setStatus.last.time < 30 || (Module.setStatus.last.time = n, Module.setStatus.last.text = e, t ? (e = t[1], progressElement.value = 100 * parseInt(t[2]), progressElement.max = 100 * parseInt(t[4]), progressElement.hidden = !1, spinnerElement.hidden = !1) : (progressElement.value = null, progressElement.max = null, progressElement.hidden = !0, e || (spinnerElement.hidden = !0)), statusElement.innerHTML = e)
+				}
+			},
+			totalDependencies: 0,
+			monitorRunDependencies: function(e) {
+				this.totalDependencies = Math.max(this.totalDependencies, e), Module.setStatus(e ? "Preparing... (" + (this.totalDependencies - e) + "/" + this.totalDependencies + ")" : "All downloads complete.")
+			}
+		};
+	Module.setStatus("Downloading..."), window.onerror = function() {
+		Module.setStatus("Exception thrown, see JavaScript console"), spinnerElement.style.display = "none", Module.setStatus = function(e) {
+			e && Module.printErr("[post-exception status] " + e)
+		}
+	}
+	</script>
+  <p style="text-align: center">Controls: Arrows = Drive/Move Cursor, ENTER = Select, ESC = Open Menu, C = Change Camera, D = Hide/Show Driver HUD</p>
+  <p style="text-align: center">IMPORTANT: Before you race, please load the server track from the Track menu! There should be only one track there, so it's not hard to find.</p>
+  <p style="text-align: center">Also, don't worry about copy protection; just press ENTER if you're given a prompt. NeverLock Loader disables copy protection, so you don't have to worry about it.</p>
+  <p style="text-align: center">The objective of the game is to set the best time on a track in a limited time frame. Each round has a different track. You'll be competing against other players, so you'll have to beat your own time and others' to remain on top! Good luck!</p>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+  <script src="script.js"></script>
+	<script async src=dosbox.js></script>
+</body>
+
+</html>
+<script type="text/javascript">
+var Module = typeof Module !== 'undefined' ? Module : {};
+if(!Module.expectedDataFileDownloads) {
+	Module.expectedDataFileDownloads = 0;
+}
+Module.expectedDataFileDownloads++;
+(function() {
+	// When running as a pthread, FS operations are proxied to the main thread, so we don't need to
+	// fetch the .data bundle on the worker
+	if(Module['ENVIRONMENT_IS_PTHREAD']) return;
+	var loadPackage = function(metadata) {
+		var PACKAGE_PATH = '';
+		if(typeof window === 'object') {
+			PACKAGE_PATH = window['encodeURIComponent'](window.location.pathname.toString().substring(0, window.location.pathname.toString().lastIndexOf('/')) + '/');
+		} else if(typeof process === 'undefined' && typeof location !== 'undefined') {
+			// web worker
+			PACKAGE_PATH = encodeURIComponent(location.pathname.toString().substring(0, location.pathname.toString().lastIndexOf('/')) + '/');
+		}
+		var PACKAGE_NAME = '/root/StuntsMultiplayer/em-dosbox-old/src/stunts.data';
+		var REMOTE_PACKAGE_BASE = 'stunts.data';
+		if(typeof Module['locateFilePackage'] === 'function' && !Module['locateFile']) {
+			Module['locateFile'] = Module['locateFilePackage'];
+			err('warning: you defined Module.locateFilePackage, that has been renamed to Module.locateFile (using your locateFilePackage for now)');
+		}
+		var REMOTE_PACKAGE_NAME = Module['locateFile'] ? Module['locateFile'](REMOTE_PACKAGE_BASE, '') : REMOTE_PACKAGE_BASE;
+		var REMOTE_PACKAGE_SIZE = metadata['remote_package_size'];
+
+		function fetchRemotePackage(packageName, packageSize, callback, errback) {
+			if(typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string') {
+				require('fs').readFile(packageName, function(err, contents) {
+					if(err) {
+						errback(err);
+					} else {
+						callback(contents.buffer);
+					}
+				});
+				return;
+			}
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', packageName, true);
+			xhr.responseType = 'arraybuffer';
+			xhr.onprogress = function(event) {
+				var url = packageName;
+				var size = packageSize;
+				if(event.total) size = event.total;
+				if(event.loaded) {
+					if(!xhr.addedTotal) {
+						xhr.addedTotal = true;
+						if(!Module.dataFileDownloads) Module.dataFileDownloads = {};
+						Module.dataFileDownloads[url] = {
+							loaded: event.loaded,
+							total: size
+						};
+					} else {
+						Module.dataFileDownloads[url].loaded = event.loaded;
+					}
+					var total = 0;
+					var loaded = 0;
+					var num = 0;
+					for(var download in Module.dataFileDownloads) {
+						var data = Module.dataFileDownloads[download];
+						total += data.total;
+						loaded += data.loaded;
+						num++;
+					}
+					total = Math.ceil(total * Module.expectedDataFileDownloads / num);
+					if(Module['setStatus']) Module['setStatus']('Downloading data... (' + loaded + '/' + total + ')');
+				} else if(!Module.dataFileDownloads) {
+					if(Module['setStatus']) Module['setStatus']('Downloading data...');
+				}
+			};
+			xhr.onerror = function(event) {
+				throw new Error("NetworkError for: " + packageName);
+			}
+			xhr.onload = function(event) {
+				if(xhr.status == 200 || xhr.status == 304 || xhr.status == 206 || (xhr.status == 0 && xhr.response)) { // file URLs can return 0
+					var packageData = xhr.response;
+					callback(packageData);
+				} else {
+					throw new Error(xhr.statusText + " : " + xhr.responseURL);
+				}
+			};
+			xhr.send(null);
+		};
+
+		function handleError(error) {
+			console.error('package error:', error);
+		};
+		var fetchedCallback = null;
+		var fetched = Module['getPreloadedPackage'] ? Module['getPreloadedPackage'](REMOTE_PACKAGE_NAME, REMOTE_PACKAGE_SIZE) : null;
+		if(!fetched) fetchRemotePackage(REMOTE_PACKAGE_NAME, REMOTE_PACKAGE_SIZE, function(data) {
+			if(fetchedCallback) {
+				fetchedCallback(data);
+				fetchedCallback = null;
+			} else {
+				fetched = data;
+			}
+		}, handleError);
+
+		function runWithFS() {
+			function assert(check, msg) {
+				if(!check) throw msg + new Error().stack;
+			}
+			/** @constructor */
+			function DataRequest(start, end, audio) {
+				this.start = start;
+				this.end = end;
+				this.audio = audio;
+			}
+			DataRequest.prototype = {
+				requests: {},
+				open: function(mode, name) {
+					this.name = name;
+					this.requests[name] = this;
+					Module['addRunDependency']('fp ' + this.name);
+				},
+				send: function() {},
+				onload: function() {
+					var byteArray = this.byteArray.subarray(this.start, this.end);
+					this.finish(byteArray);
+				},
+				finish: function(byteArray) {
+					var that = this;
+					// canOwn this data in the filesystem, it is a slide into the heap that will never change
+					Module['FS_createDataFile'](this.name, null, byteArray, true, true, true);
+					Module['removeRunDependency']('fp ' + that.name);
+					this.requests[this.name] = null;
+				}
+			};
+			var files = metadata['files'];
+			for(var i = 0; i < files.length; ++i) {
+				new DataRequest(files[i]['start'], files[i]['end'], files[i]['audio'] || 0).open('GET', files[i]['filename']);
+			}
+
+			function processPackageData(arrayBuffer) {
+				assert(arrayBuffer, 'Loading data file failed.');
+				assert(arrayBuffer instanceof ArrayBuffer, 'bad input to processPackageData');
+				var byteArray = new Uint8Array(arrayBuffer);
+				var curr;
+				// Reuse the bytearray from the XHR as the source for file reads.
+				DataRequest.prototype.byteArray = byteArray;
+				var files = metadata['files'];
+				for(var i = 0; i < files.length; ++i) {
+					DataRequest.prototype.requests[files[i].filename].onload();
+				}
+				Module['removeRunDependency']('datafile_/root/StuntsMultiplayer/em-dosbox-old/src/stunts.data');
+			};
+			Module['addRunDependency']('datafile_/root/StuntsMultiplayer/em-dosbox-old/src/stunts.data');
+			if(!Module.preloadResults) Module.preloadResults = {};
+			Module.preloadResults[PACKAGE_NAME] = {
+				fromCache: false
+			};
+			if(fetched) {
+				processPackageData(fetched);
+				fetched = null;
+			} else {
+				fetchedCallback = processPackageData;
+			}
+		}
+		if(Module['calledRun']) {
+			runWithFS();
+		} else {
+			if(!Module['preRun']) Module['preRun'] = [];
+			Module["preRun"].push(runWithFS); // FS is not initialized yet, wait for it
+		}
+	}
+	loadPackage({
+		"files": [{
+			"filename": "/AD15.DRV",
+			"start": 0,
+			"end": 3571
+		}, {
+			"filename": "/ADENG1.VCE",
+			"start": 3571,
+			"end": 4723
+		}, {
+			"filename": "/ADSKIDMS.VCE",
+			"start": 4723,
+			"end": 7731
+		}, {
+			"filename": "/ALPINE.PVS",
+			"start": 7731,
+			"end": 15154
+		}, {
+			"filename": "/BERNIES.HIG",
+			"start": 15154,
+			"end": 15518
+		}, {
+			"filename": "/BERNIES.TRK",
+			"start": 15518,
+			"end": 17320
+		}, {
+			"filename": "/CARANSX.RES",
+			"start": 17320,
+			"end": 18252
+		}, {
+			"filename": "/CARAUDI.RES",
+			"start": 18252,
+			"end": 19214
+		}, {
+			"filename": "/CARCDOR.RES",
+			"start": 19214,
+			"end": 20196
+		}, {
+			"filename": "/CARCERV.RES",
+			"start": 20196,
+			"end": 21174
+		}, {
+			"filename": "/CARCOUN.RES",
+			"start": 21174,
+			"end": 22145
+		}, {
+			"filename": "/CARFGTO.RES",
+			"start": 22145,
+			"end": 23087
+		}, {
+			"filename": "/CARJAGU.RES",
+			"start": 23087,
+			"end": 24038
+		}, {
+			"filename": "/CARLANC.RES",
+			"start": 24038,
+			"end": 25007
+		}, {
+			"filename": "/CARLM02.RES",
+			"start": 25007,
+			"end": 25961
+		}, {
+			"filename": "/CARNSKY.RES",
+			"start": 25961,
+			"end": 26954
+		}, {
+			"filename": "/CARP962.RES",
+			"start": 26954,
+			"end": 27905
+		}, {
+			"filename": "/CARPC04.RES",
+			"start": 27905,
+			"end": 28857
+		}, {
+			"filename": "/CARPMIN.RES",
+			"start": 28857,
+			"end": 29814
+		}, {
+			"filename": "/CARSTRA.RES",
+			"start": 29814,
+			"end": 30774
+		}, {
+			"filename": "/CARVETT.RES",
+			"start": 30774,
+			"end": 31714
+		}, {
+			"filename": "/CARZCS7.RES",
+			"start": 31714,
+			"end": 32703
+		}, {
+			"filename": "/CGA.COD",
+			"start": 32703,
+			"end": 89691
+		}, {
+			"filename": "/CGA.DIF",
+			"start": 89691,
+			"end": 107721
+		}, {
+			"filename": "/CGA.HDR",
+			"start": 107721,
+			"end": 107751
+		}, {
+			"filename": "/CHERRIS.HIG",
+			"start": 107751,
+			"end": 108115
+		}, {
+			"filename": "/CHERRIS.TRK",
+			"start": 108115,
+			"end": 109917
+		}, {
+			"filename": "/CITY.PVS",
+			"start": 109917,
+			"end": 116961
+		}, {
+			"filename": "/COUNTRY.PVS",
+			"start": 116961,
+			"end": 120284
+		}, {
+			"filename": "/CRED.RES",
+			"start": 120284,
+			"end": 120719
+		}, {
+			"filename": "/DEFAULT.HIG",
+			"start": 120719,
+			"end": 121083
+		}, {
+			"filename": "/DEFAULT.TRK",
+			"start": 121083,
+			"end": 122885
+		}, {
+			"filename": "/DESERT.PVS",
+			"start": 122885,
+			"end": 128446
+		}, {
+			"filename": "/EGA.CMN",
+			"start": 128446,
+			"end": 255783
+		}, {
+			"filename": "/EGA.COD",
+			"start": 255783,
+			"end": 324606
+		}, {
+			"filename": "/EGA.HDR",
+			"start": 324606,
+			"end": 324636
+		}, {
+			"filename": "/EXAMPLE.RPL",
+			"start": 324636,
+			"end": 328081
+		}, {
+			"filename": "/FONTDEF.FNT",
+			"start": 328081,
+			"end": 329918
+		}, {
+			"filename": "/FONTLED.FNT",
+			"start": 329918,
+			"end": 330588
+		}, {
+			"filename": "/FONTN.FNT",
+			"start": 330588,
+			"end": 332031
+		}, {
+			"filename": "/GAME.ICO",
+			"start": 332031,
+			"end": 332797
+		}, {
+			"filename": "/GAME.PRE",
+			"start": 332797,
+			"end": 348231
+		}, {
+			"filename": "/GAME1.P3S",
+			"start": 348231,
+			"end": 365787
+		}, {
+			"filename": "/GAME2.P3S",
+			"start": 365787,
+			"end": 387639
+		}, {
+			"filename": "/GEENG.SFX",
+			"start": 387639,
+			"end": 389713
+		}, {
+			"filename": "/HELENS.HIG",
+			"start": 389713,
+			"end": 390077
+		}, {
+			"filename": "/HELENS.TRK",
+			"start": 390077,
+			"end": 391879
+		}, {
+			"filename": "/JOES.HIG",
+			"start": 391879,
+			"end": 392243
+		}, {
+			"filename": "/JOES.TRK",
+			"start": 392243,
+			"end": 394045
+		}, {
+			"filename": "/LOAD.EXE",
+			"start": 394045,
+			"end": 414874
+		}, {
+			"filename": "/MAIN.RES",
+			"start": 414874,
+			"end": 416378
+		}, {
+			"filename": "/MCGA.COD",
+			"start": 416378,
+			"end": 465277
+		}, {
+			"filename": "/MCGA.DIF",
+			"start": 465277,
+			"end": 483235
+		}, {
+			"filename": "/MCGA.HDR",
+			"start": 483235,
+			"end": 483265
+		}, {
+			"filename": "/MISC.PRE",
+			"start": 483265,
+			"end": 485079
+		}, {
+			"filename": "/MT15.DRV",
+			"start": 485079,
+			"end": 486829
+		}, {
+			"filename": "/MT32.PLB",
+			"start": 486829,
+			"end": 488100
+		}, {
+			"filename": "/MTENG1.VCE",
+			"start": 488100,
+			"end": 489076
+		}, {
+			"filename": "/MTSKIDMS.VCE",
+			"start": 489076,
+			"end": 490260
+		}, {
+			"filename": "/OPP1.PRE",
+			"start": 490260,
+			"end": 491514
+		}, {
+			"filename": "/OPP1LOSE.PVS",
+			"start": 491514,
+			"end": 502247
+		}, {
+			"filename": "/OPP1WIN.PVS",
+			"start": 502247,
+			"end": 512390
+		}, {
+			"filename": "/OPP2.PRE",
+			"start": 512390,
+			"end": 513711
+		}, {
+			"filename": "/OPP2LOSE.PVS",
+			"start": 513711,
+			"end": 532594
+		}, {
+			"filename": "/OPP2WIN.PVS",
+			"start": 532594,
+			"end": 553424
+		}, {
+			"filename": "/OPP3.PRE",
+			"start": 553424,
+			"end": 554417
+		}, {
+			"filename": "/OPP3LOSE.PVS",
+			"start": 554417,
+			"end": 565995
+		}, {
+			"filename": "/OPP3WIN.PVS",
+			"start": 565995,
+			"end": 587120
+		}, {
+			"filename": "/OPP4.PRE",
+			"start": 587120,
+			"end": 588492
+		}, {
+			"filename": "/OPP4LOSE.PVS",
+			"start": 588492,
+			"end": 614585
+		}, {
+			"filename": "/OPP4WIN.PVS",
+			"start": 614585,
+			"end": 640440
+		}, {
+			"filename": "/OPP5.PRE",
+			"start": 640440,
+			"end": 641696
+		}, {
+			"filename": "/OPP5LOSE.PVS",
+			"start": 641696,
+			"end": 663712
+		}, {
+			"filename": "/OPP5WIN.PVS",
+			"start": 663712,
+			"end": 697452
+		}, {
+			"filename": "/OPP6.PRE",
+			"start": 697452,
+			"end": 698749
+		}, {
+			"filename": "/OPP6LOSE.PVS",
+			"start": 698749,
+			"end": 727436
+		}, {
+			"filename": "/OPP6WIN.PVS",
+			"start": 727436,
+			"end": 752089
+		}, {
+			"filename": "/PC15.DRV",
+			"start": 752089,
+			"end": 754316
+		}, {
+			"filename": "/PCENG1.VCE",
+			"start": 754316,
+			"end": 755365
+		}, {
+			"filename": "/PCSKIDMS.VCE",
+			"start": 755365,
+			"end": 756597
+		}, {
+			"filename": "/RPLINFO.EXE",
+			"start": 756597,
+			"end": 773975
+		}, {
+			"filename": "/SDCRED.PES",
+			"start": 773975,
+			"end": 777583
+		}, {
+			"filename": "/SDCSEL.PVS",
+			"start": 777583,
+			"end": 789945
+		}, {
+			"filename": "/SDGAME.PVS",
+			"start": 789945,
+			"end": 802231
+		}, {
+			"filename": "/SDGAME2.PVS",
+			"start": 802231,
+			"end": 803483
+		}, {
+			"filename": "/SDMAIN.PVS",
+			"start": 803483,
+			"end": 804659
+		}, {
+			"filename": "/SDMSEL.PVS",
+			"start": 804659,
+			"end": 820236
+		}, {
+			"filename": "/SDOSEL.PVS",
+			"start": 820236,
+			"end": 859599
+		}, {
+			"filename": "/SDTEDIT.PES",
+			"start": 859599,
+			"end": 875675
+		}, {
+			"filename": "/SDTITL.PVS",
+			"start": 875675,
+			"end": 885659
+		}, {
+			"filename": "/SETUP.DAT",
+			"start": 885659,
+			"end": 885742
+		}, {
+			"filename": "/SETUP.EXE",
+			"start": 885742,
+			"end": 900807
+		}, {
+			"filename": "/SKIDOVER.KMS",
+			"start": 900807,
+			"end": 905110
+		}, {
+			"filename": "/SKIDS.HIG",
+			"start": 905110,
+			"end": 905474
+		}, {
+			"filename": "/SKIDS.TRK",
+			"start": 905474,
+			"end": 907276
+		}, {
+			"filename": "/SKIDSLCT.KMS",
+			"start": 907276,
+			"end": 915888
+		}, {
+			"filename": "/SKIDTITL.KMS",
+			"start": 915888,
+			"end": 918478
+		}, {
+			"filename": "/SKIDVICT.KMS",
+			"start": 918478,
+			"end": 922699
+		}, {
+			"filename": "/STANSX.P3S",
+			"start": 922699,
+			"end": 927839
+		}, {
+			"filename": "/STAUDI.P3S",
+			"start": 927839,
+			"end": 934865
+		}, {
+			"filename": "/STCDOR.3SH",
+			"start": 934865,
+			"end": 944773
+		}, {
+			"filename": "/STCERV.3SH",
+			"start": 944773,
+			"end": 953419
+		}, {
+			"filename": "/STCOUN.P3S",
+			"start": 953419,
+			"end": 958757
+		}, {
+			"filename": "/STDAANSX.PVS",
+			"start": 958757,
+			"end": 973533
+		}, {
+			"filename": "/STDAAUDI.PVS",
+			"start": 973533,
+			"end": 988700
+		}, {
+			"filename": "/STDACDOR.VSH",
+			"start": 988700,
+			"end": 1039946
+		}, {
+			"filename": "/STDACERV.VSH",
+			"start": 1039946,
+			"end": 1109920
+		}, {
+			"filename": "/STDACOUN.PVS",
+			"start": 1109920,
+			"end": 1122816
+		}, {
+			"filename": "/STDAFGTO.PVS",
+			"start": 1122816,
+			"end": 1138180
+		}, {
+			"filename": "/STDAJAGU.PVS",
+			"start": 1138180,
+			"end": 1154383
+		}, {
+			"filename": "/STDALANC.PVS",
+			"start": 1154383,
+			"end": 1173843
+		}, {
+			"filename": "/STDALM02.PVS",
+			"start": 1173843,
+			"end": 1191095
+		}, {
+			"filename": "/STDANSKY.VSH",
+			"start": 1191095,
+			"end": 1245157
+		}, {
+			"filename": "/STDAP962.PVS",
+			"start": 1245157,
+			"end": 1258816
+		}, {
+			"filename": "/STDAPC04.PVS",
+			"start": 1258816,
+			"end": 1274543
+		}, {
+			"filename": "/STDAPMIN.PVS",
+			"start": 1274543,
+			"end": 1285612
+		}, {
+			"filename": "/STDASTRA.VSH",
+			"start": 1285612,
+			"end": 1355530
+		}, {
+			"filename": "/STDAVETT.PVS",
+			"start": 1355530,
+			"end": 1370770
+		}, {
+			"filename": "/STDAZCS7.VSH",
+			"start": 1370770,
+			"end": 1472936
+		}, {
+			"filename": "/STDBANSX.PVS",
+			"start": 1472936,
+			"end": 1473708
+		}, {
+			"filename": "/STDBAUDI.PVS",
+			"start": 1473708,
+			"end": 1474549
+		}, {
+			"filename": "/STDBCDOR.VSH",
+			"start": 1474549,
+			"end": 1477275
+		}, {
+			"filename": "/STDBCERV.VSH",
+			"start": 1477275,
+			"end": 1479393
+		}, {
+			"filename": "/STDBCOUN.PVS",
+			"start": 1479393,
+			"end": 1480344
+		}, {
+			"filename": "/STDBFGTO.PVS",
+			"start": 1480344,
+			"end": 1481299
+		}, {
+			"filename": "/STDBJAGU.PVS",
+			"start": 1481299,
+			"end": 1482042
+		}, {
+			"filename": "/STDBLANC.PVS",
+			"start": 1482042,
+			"end": 1483111
+		}, {
+			"filename": "/STDBLM02.PVS",
+			"start": 1483111,
+			"end": 1484023
+		}, {
+			"filename": "/STDBNSKY.VSH",
+			"start": 1484023,
+			"end": 1487197
+		}, {
+			"filename": "/STDBP962.PVS",
+			"start": 1487197,
+			"end": 1487917
+		}, {
+			"filename": "/STDBPC04.PVS",
+			"start": 1487917,
+			"end": 1488850
+		}, {
+			"filename": "/STDBPMIN.PVS",
+			"start": 1488850,
+			"end": 1489646
+		}, {
+			"filename": "/STDBSTRA.VSH",
+			"start": 1489646,
+			"end": 1491780
+		}, {
+			"filename": "/STDBVETT.PVS",
+			"start": 1491780,
+			"end": 1492877
+		}, {
+			"filename": "/STDBZCS7.VSH",
+			"start": 1492877,
+			"end": 1494947
+		}, {
+			"filename": "/STFGTO.P3S",
+			"start": 1494947,
+			"end": 1499130
+		}, {
+			"filename": "/STJAGU.P3S",
+			"start": 1499130,
+			"end": 1504674
+		}, {
+			"filename": "/STLANC.P3S",
+			"start": 1504674,
+			"end": 1508678
+		}, {
+			"filename": "/STLM02.P3S",
+			"start": 1508678,
+			"end": 1514531
+		}, {
+			"filename": "/STNSKY.3SH",
+			"start": 1514531,
+			"end": 1521384
+		}, {
+			"filename": "/STP962.P3S",
+			"start": 1521384,
+			"end": 1527222
+		}, {
+			"filename": "/STPC04.P3S",
+			"start": 1527222,
+			"end": 1531319
+		}, {
+			"filename": "/STPMIN.P3S",
+			"start": 1531319,
+			"end": 1534016
+		}, {
+			"filename": "/STSMP.BAT",
+			"start": 1534016,
+			"end": 1534052
+		}, {
+			"filename": "/STSTRA.3SH",
+			"start": 1534052,
+			"end": 1556240
+		}, {
+			"filename": "/STUNTS.COM",
+			"start": 1556240,
+			"end": 1556998
+		}, {
+			"filename": "/STUNTS_K.EXE",
+			"start": 1556998,
+			"end": 1562409
+		}, {
+			"filename": "/STVETT.P3S",
+			"start": 1562409,
+			"end": 1568692
+		}, {
+			"filename": "/STZCS7.3SH",
+			"start": 1568692,
+			"end": 1577340
+		}, {
+			"filename": "/TB.CFG",
+			"start": 1577340,
+			"end": 1577437
+		}, {
+			"filename": "/TB.EXE",
+			"start": 1577437,
+			"end": 1864653
+		}, {
+			"filename": "/TD15.DRV",
+			"start": 1864653,
+			"end": 1867646
+		}, {
+			"filename": "/TDENG1.VCE",
+			"start": 1867646,
+			"end": 1868558
+		}, {
+			"filename": "/TDSKIDMS.VCE",
+			"start": 1868558,
+			"end": 1871086
+		}, {
+			"filename": "/TDY.COD",
+			"start": 1871086,
+			"end": 1926255
+		}, {
+			"filename": "/TDY.DIF",
+			"start": 1926255,
+			"end": 1944485
+		}, {
+			"filename": "/TDY.HDR",
+			"start": 1944485,
+			"end": 1944515
+		}, {
+			"filename": "/TEDIT.PRE",
+			"start": 1944515,
+			"end": 1949543
+		}, {
+			"filename": "/TITLE.P3S",
+			"start": 1949543,
+			"end": 1952246
+		}, {
+			"filename": "/TROPICAL.PVS",
+			"start": 1952246,
+			"end": 1957713
+		}, {
+			"filename": "/dosbox.conf",
+			"start": 1957713,
+			"end": 1969326
+		}, {
+			"filename": "/readme-cars-2022.txt",
+			"start": 1969326,
+			"end": 1972959
+		}, {
+			"filename": "/readme-rplinfo.txt",
+			"start": 1972959,
+			"end": 1978813
+		}],
+		"remote_package_size": 1978813
+	});
+})();
+Module['arguments'] = ['./STSMP.BAT'];
+</script>

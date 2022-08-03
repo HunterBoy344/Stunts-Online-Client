@@ -1,0 +1,55 @@
+@font-face {
+  font-family: 'Stunts';
+  src: url('/Stunts.ttf') format('truetype')
+}
+@font-face {
+  font-family: 'DOS-Font';
+  src: url('/DOS-Font.ttf') format('truetype')
+}
+
+body {
+  background-image: url(background.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  font-family: Stunts;
+  color: white;
+}
+#leaderboard, #chatview {
+  font-family: DOS-Font;
+  text-align: left;
+  color: black;
+  border: 1px solid white;
+  backdrop-filter: blur(6px);
+  background-color: rgba(255,255,255,0.35);
+  width: 300px;
+  height: 150px;
+  margin: auto;
+  display: inline-block;
+  overflow: auto;
+  padding: 5px;
+  margin-top: 5px;
+}
+#timer {
+  font-family: DOS-Font;
+  text-align: center;
+  color: black;
+  border: 1px solid white;
+  backdrop-filter: blur(6px);
+  background-color: rgba(255,255,255,0.35);
+  width: 100px;
+  height: 30px;
+  margin: auto;
+  display: inline-block;
+  overflow: auto;
+  padding: 5px;
+  vertical-align: middle;
+  line-height: 30px;  
+  margin-bottom: 5px;
+}
+#parent {
+  border: 1px solid white;
+}
+.frameParent {
+  text-align: center;
+  vertical-align: top;
+}
