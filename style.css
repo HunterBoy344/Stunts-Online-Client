@@ -46,9 +46,6 @@ body {
   line-height: 30px;  
   margin-bottom: 5px;
 }
-#parent {
-  border: 1px solid white;
-}
 .frameParent {
   text-align: center;
   vertical-align: top;
