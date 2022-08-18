@@ -2,6 +2,7 @@ var ws
 var input = document.getElementById('usernameinput')
 var input2 = document.getElementById('serverinput')
 var connectbutton = document.getElementById("connectbutton");
+var connectunsecure = document.getElementById("connectunsecure");
 var inputFocused = false
 var username
 var ID
@@ -23,12 +24,104 @@ connectbutton.addEventListener("click", function(event) {
   FS.unlink('/SKIDS.HIG')
   connectbutton.disabled = true;
   connectbutton.innerHTML = 'Connected!'
+  connectunsecure.disabled = true;
+  connectunsecure.innerHTML = 'Connected!'
   let server = input2.value
   username = input.value
   input.value = ''
   input2.value = ''
   console.log('Attempting connection to WebSocket server...')
   ws = new WebSocket(`wss://${server}`)
+  ws.binaryType = "arraybuffer";
+  ws.addEventListener('open', (event) => {
+    console.log('Connection was successful!')
+    ws.send(`{ "username" : "${username}" }`);
+    var checkForReplayInterval = setInterval(getReplayFromFS, 1000);
+    ws.addEventListener('message', event => {
+      var response = event.data
+      if (response instanceof ArrayBuffer) {
+        var view = new Uint8Array(response);
+        console.log(view)
+        FS.writeFile(`/${trackName}.TRK`, view)
+        var x = document.getElementById("warning");
+        x.style.display = "none";
+        return
+      }
+      var responseJSON = JSON.parse(response)
+      if (responseJSON.hasOwnProperty('timer')) {
+        // var doc = document.getElementById('timer').contentWindow.document;
+        // doc.open();
+        // doc.write(responseJSON.timer);
+        // doc.close();
+        let remainingTime = sToTime(responseJSON.timer)
+        $("#timer").html(remainingTime);
+      }
+      if (responseJSON.hasOwnProperty('leaderboard')) {
+        var leaderboard = responseJSON.leaderboard
+        // var doc = document.getElementById('leaderboard').contentWindow.document;
+        // doc.open();
+        $("#leaderboard").html(``);
+        leaderboard.forEach((element, index) => {
+          if (element.time === 999999) {
+            // doc.write(`#${index + 1}: ${element.username} (???)<br>`);
+            $("#leaderboard").append(`#${index + 1}: ${element.username} (???)<br>`);
+          } else {
+            //doc.write(`#${index + 1}: ${element.username} (${msToTime(element.time/**50*/)})<br>`);
+            $("#leaderboard").append(`#${index + 1}: ${element.username} (${msToTime(element.time/**50*/)})<br>`);
+          }
+        });
+        // doc.close();
+      }
+      if (responseJSON.hasOwnProperty('warning')) {
+        var x = document.getElementById("warning");
+        x.style.display = "block";
+        FS.unlink(`/${trackName}.TRK`)
+      }
+      if (responseJSON.hasOwnProperty('ID')) {
+        console.log(responseJSON)
+        ID = responseJSON.ID
+      }
+      if (responseJSON.hasOwnProperty('track')) {
+        let buffer = _base64ToArrayBuffer(responseJSON.track)
+        let view = new Uint8Array(buffer);
+        console.log(view)
+        trackName = responseJSON.name
+        trackName = trackName.replace(/\.[^/.]+$/, "")
+        FS.writeFile(`/${trackName}.TRK`, view)
+        var x = document.getElementById("warning");
+        x.style.display = "none";
+        return
+      }
+    });
+  });
+  ws.addEventListener('close', event => {
+    console.error(`Connection closed by the server.`)
+  })
+});
+
+connectunsecure.addEventListener("click", function(event) {
+  FS.unlink('/BERNIES.TRK')
+  FS.unlink('/CHERRIS.TRK')
+  FS.unlink('/DEFAULT.TRK')
+  FS.unlink('/HELENS.TRK')
+  FS.unlink('/JOES.TRK')
+  FS.unlink('/SKIDS.TRK')
+  FS.unlink('/BERNIES.HIG')
+  FS.unlink('/CHERRIS.HIG')
+  FS.unlink('/DEFAULT.HIG')
+  FS.unlink('/HELENS.HIG')
+  FS.unlink('/JOES.HIG')
+  FS.unlink('/SKIDS.HIG')
+  connectbutton.disabled = true;
+  connectbutton.innerHTML = 'Connected!'
+  connectunsecure.disabled = true;
+  connectunsecure.innerHTML = 'Connected!'
+  let server = input2.value
+  username = input.value
+  input.value = ''
+  input2.value = ''
+  console.log('Attempting connection to WebSocket server...')
+  ws = new WebSocket(`ws://${server}`)
   ws.binaryType = "arraybuffer";
   ws.addEventListener('open', (event) => {
     console.log('Connection was successful!')
@@ -204,15 +297,21 @@ function simulateKeyEvent(charCode, pressed)
 
 window.addEventListener('keydown', function(event){
   if (inputFocused == true) {
-    event.stopImmediatePropagation();
+    event.stopPropagation()
   }
 }, true);
 
 window.addEventListener('keyup', function(event){
   if (inputFocused == true) {
-    event.stopImmediatePropagation();
+    event.stopPropagation()
   }
 }, true);
+
+window.addEventListener('keypress', function(event){
+  if (inputFocused == true) {
+    event.stopPropagation()
+  }
+}, true); 
 
 /* window.addEventListener('beforeunload', (event) => {
   if (!ws) return
