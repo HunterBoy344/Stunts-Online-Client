@@ -43,7 +43,11 @@
     <canvas id="jsdos"></canvas>
     <div class="frameParent">
       <div id="leaderboard" width="300px" height="150px"></div>
-      <div id="chatview" width="300px" height="150px"></div>
+      <div id="chatview" width="300px" height="150px">
+        <input id=downloadinput type="text" placeholder="Filename to download..."/><button onClick='downloadFile(document.getElementById("downloadinput").value); document.getElementById("downloadinput").value = ""'>Download</button>
+        <input id=uploadinput type="file"/><button onClick='uploadFile()'>Upload</button>
+        <p>To protect against cheating, these options will be removed when you connect to a server.</p>
+      </div>
     </div>
   </div>
   <div style="text-align: center">

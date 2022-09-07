@@ -1,6 +1,7 @@
 var ws
 var input = document.getElementById('usernameinput')
 var input2 = document.getElementById('serverinput')
+var input3 = document.getElementById('downloadinput')
 var connectbutton = document.getElementById("connectbutton");
 var connectunsecure = document.getElementById("connectunsecure");
 var inputFocused = false
@@ -10,18 +11,20 @@ var trackName
 let leaderboardFrame = $("#leaderboard").contents().find('body');
 
 connectbutton.addEventListener("click", function(event) {
-  FS.unlink('/BERNIES.TRK')
-  FS.unlink('/CHERRIS.TRK')
-  FS.unlink('/DEFAULT.TRK')
-  FS.unlink('/HELENS.TRK')
-  FS.unlink('/JOES.TRK')
-  FS.unlink('/SKIDS.TRK')
-  FS.unlink('/BERNIES.HIG')
-  FS.unlink('/CHERRIS.HIG')
-  FS.unlink('/DEFAULT.HIG')
-  FS.unlink('/HELENS.HIG')
-  FS.unlink('/JOES.HIG')
-  FS.unlink('/SKIDS.HIG')
+  document.getElementById('chatview').innerHTML = "";
+  let filesArray = FS.readdir('/');
+  let tracksToDelete = filesArray.filter(element => element.includes(".TRK"));
+  tracksToDelete.forEach((element, index) => {
+    FS.unlink(`/${element}`)
+  });
+  tracksToDelete = filesArray.filter(element => element.includes(".HIG"));
+   tracksToDelete.forEach((element, index) => {
+    FS.unlink(`/${element}`)
+  });
+  tracksToDelete = filesArray.filter(element => element.includes(".RPL"));
+   tracksToDelete.forEach((element, index) => {
+    FS.unlink(`/${element}`)
+  });
   connectbutton.disabled = true;
   connectbutton.innerHTML = 'Connected!'
   connectunsecure.disabled = true;
@@ -100,18 +103,20 @@ connectbutton.addEventListener("click", function(event) {
 });
 
 connectunsecure.addEventListener("click", function(event) {
-  FS.unlink('/BERNIES.TRK')
-  FS.unlink('/CHERRIS.TRK')
-  FS.unlink('/DEFAULT.TRK')
-  FS.unlink('/HELENS.TRK')
-  FS.unlink('/JOES.TRK')
-  FS.unlink('/SKIDS.TRK')
-  FS.unlink('/BERNIES.HIG')
-  FS.unlink('/CHERRIS.HIG')
-  FS.unlink('/DEFAULT.HIG')
-  FS.unlink('/HELENS.HIG')
-  FS.unlink('/JOES.HIG')
-  FS.unlink('/SKIDS.HIG')
+  document.getElementById('chatview').innerHTML = "";
+  let filesArray = FS.readdir('/');
+  let tracksToDelete = filesArray.filter(element => element.includes(".TRK"));
+  tracksToDelete.forEach((element, index) => {
+    FS.unlink(`/${element}`)
+  });
+  tracksToDelete = filesArray.filter(element => element.includes(".HIG"));
+   tracksToDelete.forEach((element, index) => {
+    FS.unlink(`/${element}`)
+  });
+  tracksToDelete = filesArray.filter(element => element.includes(".RPL"));
+   tracksToDelete.forEach((element, index) => {
+    FS.unlink(`/${element}`)
+  });
   connectbutton.disabled = true;
   connectbutton.innerHTML = 'Connected!'
   connectunsecure.disabled = true;
@@ -294,6 +299,31 @@ function simulateKeyEvent(charCode, pressed)
     element.dispatchEvent(event);
 }
 
+function downloadFile(name) {
+  var fileToDownload = FS.readFile(`/${name}`, { encoding : 'binary' })
+  saveByteArray(name, fileToDownload)
+}
+function uploadFile() {
+  let file = $("#uploadinput").prop("files")[0];
+  let filename = file.name
+  let promise = file.arrayBuffer()
+  promise.then(function(result) {
+    let view = new Uint8Array(result);
+    FS.writeFile(`/${filename}`, view)
+    console.log(`Uploaded ${filename}`)
+    document.getElementById('uploadinput').value = ""
+});
+}
+
+function saveByteArray(reportName, byte) {
+    var blob = new Blob([byte], {type: "application/octet-stream"});
+    var link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    var fileName = reportName;
+    link.download = fileName;
+    link.click();
+};
+
 
 window.addEventListener('keydown', function(event){
   if (inputFocused == true) {
@@ -329,6 +359,9 @@ input.addEventListener('focus', (event) => {
 input2.addEventListener('focus', (event) => {
   inputFocused = true
 }, true);
+input3.addEventListener('focus', (event) => {
+  inputFocused = true
+}, true);
 
 input.addEventListener('blur', (event) => {
   inputFocused = false
@@ -336,3 +369,7 @@ input.addEventListener('blur', (event) => {
 input2.addEventListener('blur', (event) => {
   inputFocused = false
 }, true);
+input3.addEventListener('blur', (event) => {
+  inputFocused = false
+}, true);
+
