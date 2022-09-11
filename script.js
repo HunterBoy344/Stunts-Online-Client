@@ -23,7 +23,9 @@ connectbutton.addEventListener("click", function(event) {
   });
   tracksToDelete = filesArray.filter(element => element.includes(".RPL"));
    tracksToDelete.forEach((element, index) => {
-    FS.unlink(`/${element}`)
+    if (element != 'DEFAULT.RPL') {
+      FS.unlink(`/${element}`)
+    }
   });
   connectbutton.disabled = true;
   connectbutton.innerHTML = 'Connected!'
@@ -98,7 +100,9 @@ connectbutton.addEventListener("click", function(event) {
     });
   });
   ws.addEventListener('close', event => {
-    console.error(`Connection closed by the server.`)
+    alert(`Connection to server was either lost or closed. Please reload the page and try again.`)
+    connectbutton.innerHTML = 'Disconnected'
+    connectunsecure.innerHTML = 'Disconnected'
   })
 });
 
@@ -115,7 +119,9 @@ connectunsecure.addEventListener("click", function(event) {
   });
   tracksToDelete = filesArray.filter(element => element.includes(".RPL"));
    tracksToDelete.forEach((element, index) => {
-    FS.unlink(`/${element}`)
+    if (element != 'DEFAULT.RPL') {
+      FS.unlink(`/${element}`)
+    }
   });
   connectbutton.disabled = true;
   connectbutton.innerHTML = 'Connected!'
@@ -190,7 +196,9 @@ connectunsecure.addEventListener("click", function(event) {
     });
   });
   ws.addEventListener('close', event => {
-    console.error(`Connection closed by the server.`)
+    alert(`Connection to server was either lost or closed. Please reload the page and try again.`)
+    connectbutton.innerHTML = 'Disconnected'
+    connectunsecure.innerHTML = 'Disconnected'
   })
 });
 
