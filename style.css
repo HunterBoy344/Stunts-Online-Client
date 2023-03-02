@@ -50,3 +50,25 @@ body {
   text-align: center;
   vertical-align: top;
 }
+
+#chatviewBox {
+  position: absolute;
+  bottom: 5px;
+}
+
+#chatviewLog {
+  font-family: DOS-Font;
+  text-align: left;
+  color: black;
+  border: 1px solid white;
+  backdrop-filter: blur(6px);
+  background-color: rgba(255,255,255,0.35);
+  width: 288px;
+  height: 113px;
+  margin: auto;
+  display: inline-block;
+  overflow: hidden;
+  padding: 5px;
+  margin-top: 0px;
+  white-space: initial;
+}

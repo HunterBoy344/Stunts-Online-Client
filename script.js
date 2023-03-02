@@ -2,16 +2,19 @@ var ws
 var input = document.getElementById('usernameinput')
 var input2 = document.getElementById('serverinput')
 var input3 = document.getElementById('downloadinput')
+var input4 = document.getElementById('messagebox')
 var connectbutton = document.getElementById("connectbutton");
 var connectunsecure = document.getElementById("connectunsecure");
 var inputFocused = false
+var messageBoxFocused = false
 var username
 var ID
 var trackName
 let leaderboardFrame = $("#leaderboard").contents().find('body');
 
 connectbutton.addEventListener("click", function(event) {
-  document.getElementById('chatview').innerHTML = "";
+  document.getElementById('chatviewUpload').innerHTML = "";
+  document.getElementById('chatviewLogParent').style.display = "inline"
   let filesArray = FS.readdir('/');
   let tracksToDelete = filesArray.filter(element => element.includes(".TRK"));
   tracksToDelete.forEach((element, index) => {
@@ -97,6 +100,16 @@ connectbutton.addEventListener("click", function(event) {
         x.style.display = "none";
         return
       }
+      if (responseJSON.hasOwnProperty('chat')) {
+        var chatlog = responseJSON.chat.slice(0).slice(-8)
+        // var doc = document.getElementById('leaderboard').contentWindow.document;
+        // doc.open();
+        $("#chatviewLog").html(``);
+        chatlog.forEach((element, index) => {
+          $("#chatviewLog").append(`${element}<br>`);
+        });
+        $("#chatviewLog").scrollTop($("#chatviewLog")[0].scrollHeight);
+      }
     });
   });
   ws.addEventListener('close', event => {
@@ -107,7 +120,8 @@ connectbutton.addEventListener("click", function(event) {
 });
 
 connectunsecure.addEventListener("click", function(event) {
-  document.getElementById('chatview').innerHTML = "";
+  document.getElementById('chatviewUpload').innerHTML = "";
+  document.getElementById('chatviewLogParent').style.display = "inline"
   let filesArray = FS.readdir('/');
   let tracksToDelete = filesArray.filter(element => element.includes(".TRK"));
   tracksToDelete.forEach((element, index) => {
@@ -192,6 +206,16 @@ connectunsecure.addEventListener("click", function(event) {
         var x = document.getElementById("warning");
         x.style.display = "none";
         return
+      }
+      if (responseJSON.hasOwnProperty('chat')) {
+        var chatlog = responseJSON.chat.slice(0).slice(-8)
+        // var doc = document.getElementById('leaderboard').contentWindow.document;
+        // doc.open();
+        $("#chatviewLog").html(``);
+        chatlog.forEach((element, index) => {
+          $("#chatviewLog").append(`${element}<br>`);
+        });
+        $("#chatviewLog").scrollTop($("#chatviewLog")[0].scrollHeight);
       }
     });
   });
@@ -320,7 +344,13 @@ function uploadFile() {
     FS.writeFile(`/${filename}`, view)
     console.log(`Uploaded ${filename}`)
     document.getElementById('uploadinput').value = ""
-});
+  });
+}
+
+function sendMessage() {
+  let messageToSend = input4.value
+  ws.send(`{ "message" : "${messageToSend}", "username" : "${username}"}`)
+  input4.value = ""
 }
 
 function saveByteArray(reportName, byte) {
@@ -335,6 +365,9 @@ function saveByteArray(reportName, byte) {
 
 window.addEventListener('keydown', function(event){
   if (inputFocused == true) {
+    if (messageBoxFocused == true && event.keyCode == 13) {
+      sendMessage()
+    }
     event.stopPropagation()
   }
 }, true);
@@ -370,6 +403,10 @@ input2.addEventListener('focus', (event) => {
 input3.addEventListener('focus', (event) => {
   inputFocused = true
 }, true);
+input4.addEventListener('focus', (event) => {
+  inputFocused = true
+  messageBoxFocused = true
+}, true);
 
 input.addEventListener('blur', (event) => {
   inputFocused = false
@@ -380,4 +417,7 @@ input2.addEventListener('blur', (event) => {
 input3.addEventListener('blur', (event) => {
   inputFocused = false
 }, true);
-
+input4.addEventListener('blur', (event) => {
+  inputFocused = false
+  messageBoxFocused = true
+}, true);
