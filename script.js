@@ -4,7 +4,7 @@ var input2 = document.getElementById('serverinput')
 var input3 = document.getElementById('downloadinput')
 var input4 = document.getElementById('messagebox')
 var connectbutton = document.getElementById("connectbutton");
-var connectunsecure = document.getElementById("connectunsecure");
+//var connectunsecure = document.getElementById("connectunsecure");
 var inputFocused = false
 var messageBoxFocused = false
 var username
@@ -30,10 +30,24 @@ connectbutton.addEventListener("click", function(event) {
       FS.unlink(`/${element}`)
     }
   });
+  tracksToDelete = filesArray.filter(element => element.includes(".trk"));
+  tracksToDelete.forEach((element, index) => {
+    FS.unlink(`/${element}`)
+  });
+  tracksToDelete = filesArray.filter(element => element.includes(".hig"));
+   tracksToDelete.forEach((element, index) => {
+    FS.unlink(`/${element}`)
+  });
+  tracksToDelete = filesArray.filter(element => element.includes(".rpl"));
+   tracksToDelete.forEach((element, index) => {
+    if (element != 'DEFAULT.RPL') {
+      FS.unlink(`/${element}`)
+    }
+  });
   connectbutton.disabled = true;
   connectbutton.innerHTML = 'Connected!'
-  connectunsecure.disabled = true;
-  connectunsecure.innerHTML = 'Connected!'
+  //connectunsecure.disabled = true;
+  //connectunsecure.innerHTML = 'Connected!'
   let server = input2.value
   username = input.value
   input.value = ''
@@ -119,7 +133,7 @@ connectbutton.addEventListener("click", function(event) {
   })
 });
 
-connectunsecure.addEventListener("click", function(event) {
+/*connectunsecure.addEventListener("click", function(event) {
   document.getElementById('chatviewUpload').innerHTML = "";
   document.getElementById('chatviewLogParent').style.display = "inline"
   let filesArray = FS.readdir('/');
@@ -181,8 +195,8 @@ connectunsecure.addEventListener("click", function(event) {
             // doc.write(`#${index + 1}: ${element.username} (???)<br>`);
             $("#leaderboard").append(`#${index + 1}: ${element.username} (???)<br>`);
           } else {
-            //doc.write(`#${index + 1}: ${element.username} (${msToTime(element.time/**50*/)})<br>`);
-            $("#leaderboard").append(`#${index + 1}: ${element.username} (${msToTime(element.time/**50*/)})<br>`);
+            //doc.write(`#${index + 1}: ${element.username} (${msToTime(element.time)})<br>`);
+            $("#leaderboard").append(`#${index + 1}: ${element.username} (${msToTime(element.time)})<br>`);
           }
         });
         // doc.close();
@@ -225,6 +239,7 @@ connectunsecure.addEventListener("click", function(event) {
     connectunsecure.innerHTML = 'Disconnected'
   })
 });
+*/
 
 function getReplayFromFS() {
   /* var replayCheck = FS.analyzePath('/DEFAULT.RPL')
