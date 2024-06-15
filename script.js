@@ -364,7 +364,7 @@ function uploadFile() {
 
 function sendMessage() {
   let messageToSend = input4.value
-  ws.send(`{ "message" : "${messageToSend}", "username" : "${username}"}`)
+  ws.send(`{ "message" : "${messageToSend.replace(/"/g, '&quot;')}", "username" : "${username.replace(/"/g, '&quot;')}"}`)
   input4.value = ""
 }
 
