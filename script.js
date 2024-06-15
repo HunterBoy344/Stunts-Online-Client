@@ -48,7 +48,7 @@ connectbutton.addEventListener("click", function(event) {
   connectbutton.innerHTML = 'Connected!'
   //connectunsecure.disabled = true;
   //connectunsecure.innerHTML = 'Connected!'
-  let server = input2.value
+  let server = input2.value.replace(/(^\w+:|^)\/\//, '').replace(/\/+$/, '')
   username = input.value
   input.value = ''
   input2.value = ''
@@ -129,7 +129,7 @@ connectbutton.addEventListener("click", function(event) {
   ws.addEventListener('close', event => {
     alert(`Connection to server was either lost or closed. Please reload the page and try again.`)
     connectbutton.innerHTML = 'Disconnected'
-    connectunsecure.innerHTML = 'Disconnected'
+    // connectunsecure.innerHTML = 'Disconnected'
   })
 });
 
