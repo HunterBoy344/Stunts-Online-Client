@@ -363,7 +363,7 @@ function uploadFile() {
 }
 
 function sendMessage() {
-  let messageToSend = input4.value.replace(/"/g, '\\"');
+  let messageToSend = input4.value.replace(String.fromCharCode(92),String.fromCharCode(92,92)).replace(/"/g, '\\"');
   ws.send(`{ "message" : "${messageToSend}", "username" : "${username}"}`)
   input4.value = ""
 }
