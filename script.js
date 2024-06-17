@@ -11,7 +11,6 @@ var username
 var ID
 var trackName
 let leaderboardFrame = $("#leaderboard").contents().find('body');
-var replayAutoSaveInterval = setInterval(replayAutoSave, 1000);
 
 connectbutton.addEventListener("click", function(event) {
   document.getElementById('chatviewUpload').innerHTML = "";
@@ -60,6 +59,7 @@ connectbutton.addEventListener("click", function(event) {
     console.log('Connection was successful!')
     ws.send(`{ "username" : "${username}" }`);
     var checkForReplayInterval = setInterval(getReplayFromFS, 1000);
+    var replayAutoSaveInterval = setInterval(replayAutoSave, 1000);
     ws.addEventListener('message', event => {
       var response = event.data
       if (response instanceof ArrayBuffer) {
