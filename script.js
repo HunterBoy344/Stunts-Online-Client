@@ -265,6 +265,7 @@ function getReplayFromFS() {
   replaysToSave.forEach((element, index) => {
     if (element.toUpperCase() != 'DEFAULT.RPL') {
       downloadFile(element);
+      FS.unlink(`/${element}`);
     }
   });
 }
