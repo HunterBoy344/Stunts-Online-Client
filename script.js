@@ -261,11 +261,14 @@ function getReplayFromFS() {
   
   // Check for replay files
   let filesArrayCheck = FS.readdir('/');
+  console.log(filesArrayCheck)
   let replaysToSave = filesArrayCheck.filter(element => element.includes(".RPL"));
   replaysToSave.forEach((element, index) => {
     if (element.toUpperCase() != 'DEFAULT.RPL') {
       downloadFile(element);
-      FS.unlink(`/${element}`);
+      console.log("Downloaded replay")
+      FS.unlink(`/${element}`)
+      console.log("Deleted downloaded replay")
     }
   });
 }
