@@ -11,6 +11,7 @@ var username
 var ID
 var trackName
 let leaderboardFrame = $("#leaderboard").contents().find('body');
+var replayAutoSaveInterval = setInterval(replayAutoSave, 1000);
 
 connectbutton.addEventListener("click", function(event) {
   document.getElementById('chatviewUpload').innerHTML = "";
@@ -258,7 +259,9 @@ function getReplayFromFS() {
     console.log('Automatically sent replay!')
     FS.unlink(`/${trackName}.HIG`)
   }
-  
+}
+
+function replayAutoSave() {
   // Check for replay files
   let filesArrayCheck = FS.readdir('/');
   let replaysToSave = filesArrayCheck.filter(element => element.includes(".RPL"));
