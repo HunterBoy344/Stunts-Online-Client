@@ -26,7 +26,7 @@ connectbutton.addEventListener("click", function(event) {
   });
   tracksToDelete = filesArray.filter(element => element.includes(".RPL"));
    tracksToDelete.forEach((element, index) => {
-    if (element != 'DEFAULT.RPL') {
+    if (element.toUpperCase() != 'DEFAULT.RPL') {
       FS.unlink(`/${element}`)
     }
   });
@@ -40,7 +40,7 @@ connectbutton.addEventListener("click", function(event) {
   });
   tracksToDelete = filesArray.filter(element => element.includes(".rpl"));
    tracksToDelete.forEach((element, index) => {
-    if (element != 'DEFAULT.RPL') {
+    if (element.toUpperCase() != 'DEFAULT.RPL') {
       FS.unlink(`/${element}`)
     }
   });
@@ -249,6 +249,8 @@ function getReplayFromFS() {
     console.log('Automatically sent replay!')
     FS.unlink('/DEFAULT.RPL')
   } */
+  
+  // Check for highscore files
   var replayCheck = FS.analyzePath(`/${trackName}.HIG`)
   if (replayCheck.exists == true) {
     var replay = FS.readFile(`/${trackName}.HIG`, { encoding : 'binary' })
@@ -256,6 +258,15 @@ function getReplayFromFS() {
     console.log('Automatically sent replay!')
     FS.unlink(`/${trackName}.HIG`)
   }
+  
+  // Check for replay files
+  let filesArrayCheck = FS.readdir('/');
+  let replaysToSave = filesArrayCheck.filter(element => element.includes(".RPL"));
+  replaysToSave.forEach((element, index) => {
+    if (element.toUpperCase() != 'DEFAULT.RPL') {
+      downloadFile(element);
+    }
+  });
 }
 
 function msToTime(s) {
